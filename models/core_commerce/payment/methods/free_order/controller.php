@@ -6,7 +6,6 @@ class CoreCommerceFreeOrderPaymentMethodController extends CoreCommercePaymentCo
     public function method_form() {
         $pkg = Package::getByHandle('core_commerce');
         $this->set('PAYMENT_METHOD_DEFAULT_TRANSACTION_TYPE', $pkg->config('PAYMENT_METHOD_DEFAULT_TRANSACTION_TYPE'));
-        $this->set('PAYMENT_METHOD_DEFAULT_EMAIL_RECEIPT', $pkg->config('PAYMENT_METHOD_DEFAULT_EMAIL_RECEIPT'));
     }
 
     public function validate() {
@@ -36,17 +35,6 @@ class CoreCommerceFreeOrderPaymentMethodController extends CoreCommercePaymentCo
       $u = new User();
       $ui = UserInfo::getByID($u->getUserID());
       $pkg = Package::getByHandle('core_commerce');
-      if ($ui && $ui->getUserEmail() && $pkg->config('PAYMENT_METHOD_DEFAULT_EMAIL_RECEIPT') == 'true') {
-           $mh = Loader::helper('mail');
-           $mh->to($ui->getUserEmail());
-           $mh->setSubject("Customer Receipt");
-           $mh->setBody("Thank you for your order! Your order number is #" . $o->getOrderID() . ".");
-           try {
-              $mh->sendMail();
-           } catch (Exception $e) {
-               Log::addEntry('Error sending receipt email for order #'.$o->getOrderID().': '.$e->getMessage());
-           }
-      }
 
       $pkg = Package::getByHandle('core_commerce');
       if (strtolower($pkg->config('PAYMENT_METHOD_DEFAULT_TRANSACTION_TYPE')) == 'authorization') {
@@ -64,7 +52,7 @@ class CoreCommerceFreeOrderPaymentMethodController extends CoreCommercePaymentCo
     public function save() {
         $pkg = Package::getByHandle('core_commerce');
         $pkg->saveConfig('PAYMENT_METHOD_DEFAULT_TRANSACTION_TYPE', $this->post('PAYMENT_METHOD_DEFAULT_TRANSACTION_TYPE'));
-        $pkg->saveConfig('PAYMENT_METHOD_DEFAULT_EMAIL_RECEIPT', $this->post('PAYMENT_METHOD_DEFAULT_EMAIL_RECEIPT'));
+      
     }
 
 }
